@@ -1,5 +1,6 @@
 import lib
 
+# TOOD: encrypt the key too (use a password which
 c = lib.Crypto("/tmp/key.key")
 inf = input("Input file: ")
 outf = input("Output file: ")
