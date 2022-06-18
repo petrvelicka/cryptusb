@@ -4,39 +4,42 @@ from cryptography.fernet import Fernet
 
 
 class Crypto:
-    def __init__(self, key_path):
-        if os.path.exists(key_path):
-            with open(key_path, 'rb') as file_key:
-                self._key = Fernet(file_key.read())
-        else:
-            generated_key = self.generate_key(key_path)
+    def __init__(self, key=None):
+        if not key:
+            key = self.key_create()
+        self._key = key
 
-            self._key = Fernet(generated_key)
-
-    def generate_key(self, path):
+    def key_create(self):
         key = Fernet.generate_key()
-        with open(path, "wb") as key_file:
-            key_file.write(key)
         return key
 
+    def key(self):
+        return self._key
+
     def encrypt(self, data):
-        return self._key.encrypt(data)
+        f = Fernet(self._key)
+        return f.encrypt(data)
 
     def decrypt(self, data):
-        return self._key.decrypt(data)
+        f = Fernet(self._key)
+        return f.decrypt(data)
 
-    def encrypt_file(self, inf, outf):
+    def encrypt_file(self, inf, outf=None):
         with open(inf, "rb") as file:
             # read the encrypted data
             data = file.read()
         enc_data = self.encrypt(data)
+        if not outf:
+            return enc_data
         with open(outf, "wb") as file:
             file.write(enc_data)
 
-    def decrypt_file(self, inf, outf):
+    def decrypt_file(self, inf, outf=None):
         with open(inf, "rb") as file:
             # read the encrypted data
             data = file.read()
-        enc_data = self.decrypt(data)
+        dec_data = self.decrypt(data)
+        if not outf:
+            return dec_data
         with open(outf, "wb") as file:
-            file.write(enc_data)
+            file.write(dec_data)
